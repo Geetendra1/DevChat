@@ -8,6 +8,7 @@ import ProgressBar from './ProgressBar'
 class MessageForm extends Component {
   state = {
     message: '',
+    typingRef:firebase.database().ref('typing'),
     loading: false,
     channel:this.props.currentChannel,
     user:this.props.currentUser,
@@ -113,7 +114,7 @@ sendFileMessage = (fileUrl, ref, pathToUpload ) => {
 
   sendMessage = () => {
     const {getMessagesRef} = this.props;
-    const {message,channel} = this.state;
+    const {message,channel, typingRef,user} = this.state;
 
     if(message) {
       this.setState({loading:true});
@@ -123,6 +124,10 @@ sendFileMessage = (fileUrl, ref, pathToUpload ) => {
         .set(this.createMessage())
         .then(() => {
           this.setState({loading:false, message:'', errors:[]})
+          typingRef
+            .child(channel.id)
+            .child(user.uid)
+            .remove()
         })
         .catch(err => {
           console.error(err);
@@ -138,6 +143,22 @@ sendFileMessage = (fileUrl, ref, pathToUpload ) => {
     }
     
   }
+
+  handleKeyDown = () => {
+    const {message, typingRef,channel,user} = this.state;
+    if(message) {
+      typingRef
+        .child(channel.id)
+        .child(user.uid)
+        .set(user.displayName)
+    } else {
+      typingRef
+      .child(channel.id)
+      .child(user.uid)
+      .remove()
+    }
+  }
+  
   render() {
     const {errors,message,loading, modal, uploadState, percentUploaded} = this.state;
     return (
@@ -146,6 +167,7 @@ sendFileMessage = (fileUrl, ref, pathToUpload ) => {
           fluid
           name="message"
           onChange={this.handleChange}
+          onKeyDown={this.handleKeyDown}
           value={message}
           style={{marginBottom:'0.7em'}}
           label={<Button icon={'add'}/>}
