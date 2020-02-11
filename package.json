@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "emoji-mart": "^2.6.1",
+    "emoji-mart": "2.6.1",
     "firebase": "^7.5.0",
     "md5": "^2.2.1",
     "mime-types": "^2.1.20",
